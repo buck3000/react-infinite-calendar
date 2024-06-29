@@ -1,5 +1,5 @@
 {
-  "name": "react-infinite-calendar",
+  "name": "@buck3000-react-infinite-calendar-fork",
   "version": "2.3.2",
   "description": "Fork of Infinite scrolling date-picker built with React, with localization, themes, keyboard support, and more. Original project buildt by Clauderic.",
   "main": "lib/index.js",
