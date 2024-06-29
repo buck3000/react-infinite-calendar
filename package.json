@@ -1,7 +1,7 @@
 {
   "name": "react-infinite-calendar",
-  "version": "2.3.1",
-  "description": "Infinite scrolling date-picker built with React, with localization, themes, keyboard support, and more.",
+  "version": "2.3.2",
+  "description": "Fork of Infinite scrolling date-picker built with React, with localization, themes, keyboard support, and more. Original project buildt by Clauderic.",
   "main": "lib/index.js",
   "module": "es/index.js",
   "files": [
@@ -31,7 +31,7 @@
     "recompose": "^0.22.0"
   },
   "peerDependencies": {
-    "react": "^15.3.0 || ^16.0.0-alpha"
+    "react": "^15.3.0 || ^16.0.0-alpha || ^18.0.0"
   },
   "devDependencies": {
     "@kadira/storybook": "^2.35.3",
@@ -51,18 +51,18 @@
     "react-dom": "^15.4.2"
   },
   "author": {
-    "name": "Clauderic Demers",
-    "email": "me@ced.io"
+    "name": "Buck OLeary",
+    "email": "buck@firewoodventures.com"
   },
-  "user": "clauderic",
-  "homepage": "https://github.com/clauderic/react-infinite-calendar",
+  "user": "buck3000",
+  "homepage": "https://github.com/buck3000/react-infinite-calendar",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/clauderic/react-infinite-calendar.git"
+    "url": "https://github.com/buck3000/react-infinite-calendar.git"
   },
   "bugs": {
-    "url": "https://github.com/clauderic/react-infinite-calendar/issues"
+    "url": "https://github.com/buck3000/react-infinite-calendar/issues"
   },
   "keywords": [
     "react",

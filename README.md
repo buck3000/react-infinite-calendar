@@ -2,7 +2,7 @@
 <img src="https://raw.githubusercontent.com/clauderic/react-infinite-calendar/master/.github/logo.png" width="180"/>
 </div>
 
-# React Infinite Calendar
+# Fork of React Infinite Calendar
 **Currently looking for maintainers to help maintain this project, please reach out if you would be interested**
 
 [![npm version](https://img.shields.io/npm/v/react-infinite-calendar.svg)](https://www.npmjs.com/package/react-infinite-calendar)
@@ -25,7 +25,7 @@ Features
 * **Mobile-friendly** – Silky smooth scrolling on mobile
 
 <div style="padding:30px">
-<img src="https://raw.githubusercontent.com/clauderic/react-infinite-calendar/master/.github/preview.gif" width="300" />
+<img src="https://raw.githubusercontent.com/buck3000/react-infinite-calendar/master/.github/preview.gif" width="300" />
 </div>
 
 Getting Started
