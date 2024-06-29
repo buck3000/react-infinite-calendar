@@ -119,7 +119,7 @@ export default class Calendar extends Component {
       this.node.focus();
     }
   }
-  componentWillUpdate(nextProps, nextState) {
+  UNSAFE_componentWillUpdate(nextProps, nextState) {
     let {min, minDate, max, maxDate} = this.props;
 
     if (nextProps.min !== min || nextProps.minDate !== minDate || nextProps.max !== max || nextProps.maxDate !== maxDate) {
