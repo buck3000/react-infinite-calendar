@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useId, useDeferredValue } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { debounce, emptyFn, range } from '../utils/index.jsx';
@@ -52,6 +52,7 @@ const defaultCalendarProps = {
  */
 const Calendar = (userProps) => {
   const props = { ...defaultCalendarProps, ...userProps };
+  const calendarId = useId();
   const node = useRef(null);
   const monthListRef = useRef(null);
   const yearsRef = useRef(null);
@@ -59,6 +60,9 @@ const Calendar = (userProps) => {
   const today = useRef(startOfDay(new Date()));
   
   const [isScrolling, setIsScrolling] = useState(false);
+  
+  // Use deferred value for better performance during scrolling
+  const deferredScrolling = useDeferredValue(isScrolling);
   const [showToday, setShowToday] = useState(false);
   
   const { display, setDisplayMode, getDisplayOptions, getLocale, getTheme } = useCalendarDisplay({
@@ -215,10 +219,15 @@ const Calendar = (userProps) => {
         [styles.container.landscape]: layout === 'landscape',
       })}
       style={{ color: theme.textColor.default, width }}
-      aria-label="Calendar"
+      role="application"
+      aria-label="Interactive Calendar"
+      aria-describedby={`${calendarId}-description`}
       ref={node}
       {...(passThrough && passThrough.rootNode ? passThrough.rootNode : {})}
     >
+      <div id={`${calendarId}-description`} className="sr-only">
+        Use arrow keys to navigate dates, Enter to select, Escape to close year view
+      </div>
       {showHeader &&
         <HeaderComponent
           selected={selected}
@@ -254,7 +263,7 @@ const Calendar = (userProps) => {
             disabledDates={disabledDates}
             disabledDays={disabledDays}
             height={height}
-            isScrolling={isScrolling}
+            isScrolling={deferredScrolling}
             locale={locale}
             maxDate={maxDate && maxDate.current ? maxDate.current : props.maxDate}
             min={min && min.current ? min.current : props.min}

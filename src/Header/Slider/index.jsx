@@ -1,4 +1,4 @@
-import React, { useCallback, Children } from 'react';
+import React, { useCallback, Children, useRef } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import classNames from 'classnames';
 import styles from './Slider.module.scss';
@@ -46,17 +46,21 @@ const Slider = ({ children, index, onChange }) => {
       {index !== 0 && <Arrow onClick={handleClick} direction={DIRECTIONS.LEFT} />}
       <div className={styles.wrapper} style={{ transform: `translate3d(-${100 * index}%, 0, 0)` }}>
         <TransitionGroup component={null}>
-          {React.Children.map(children, (child, i) => (
-            <CSSTransition
-              key={i}
-              classNames={transition}
-              timeout={300}
-            >
-              <div className={styles.slide} style={{ transform: `translateX(${100 * i}%)` }}>
-                {child}
-              </div>
-            </CSSTransition>
-          ))}
+          {React.Children.map(children, (child, i) => {
+            const nodeRef = useRef(null);
+            return (
+              <CSSTransition
+                key={i}
+                classNames={transition}
+                timeout={300}
+                nodeRef={nodeRef}
+              >
+                <div ref={nodeRef} className={styles.slide} style={{ transform: `translateX(${100 * i}%)` }}>
+                  {child}
+                </div>
+              </CSSTransition>
+            );
+          })}
         </TransitionGroup>
       </div>
       {index !== children.length - 1 && <Arrow onClick={handleClick} direction={DIRECTIONS.RIGHT} />}

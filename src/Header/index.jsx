@@ -47,10 +47,6 @@ const Header = ({
   );
 };
 
-Header.defaultProps = {
-  onYearClick: emptyFn,
-  renderSelection: defaultSelectionRenderer,
-};
 
 Header.propTypes = {
   dateFormat: PropTypes.string,

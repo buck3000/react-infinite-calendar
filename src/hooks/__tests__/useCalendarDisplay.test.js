@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor } from '@testing-library/react-hooks';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import useCalendarDisplay from '../useCalendarDisplay';
 
 describe('useCalendarDisplay', () => {

@@ -9,7 +9,10 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    extensions: ['.js', '.jsx', '.json'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
   },
   css: {
     modules: {
@@ -29,12 +32,33 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, 'src/index.jsx'),
       name: 'ReactInfiniteCalendar',
-      formats: ['es', 'cjs', 'umd'],
+      formats: ['es', 'cjs'],
       fileName: (fmt) => `react-infinite-calendar.${fmt}.js`,
     },
     rollupOptions: {
       external: ['react', 'react-dom', 'prop-types'],
-      output: { globals: { react: 'React', 'react-dom': 'ReactDOM' } },
+      output: [
+        {
+          format: 'es',
+          exports: 'named',
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM',
+            'prop-types': 'PropTypes'
+          }
+        },
+        {
+          format: 'cjs',
+          exports: 'named',
+          globals: {
+            react: 'React',
+            'react-dom': 'ReactDOM',
+            'prop-types': 'PropTypes'
+          }
+        }
+      ],
     },
+    target: 'es2020',
+    sourcemap: true,
   },
 });

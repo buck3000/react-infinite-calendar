@@ -76,4 +76,15 @@ const Day = ({
   );
 };
 
-export default Day;
+// Memoize Day component for better performance
+export default React.memo(Day, (prevProps, nextProps) => {
+  // Only re-render if relevant props change
+  return (
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.isHighlighted === nextProps.isHighlighted &&
+    prevProps.isDisabled === nextProps.isDisabled &&
+    prevProps.isToday === nextProps.isToday &&
+    prevProps.date === nextProps.date &&
+    prevProps.selectionStyle === nextProps.selectionStyle
+  );
+});

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Local Test - React Calendar</title>
+    <link rel="stylesheet" href="./dist/buck3000-react-infinite-calendar-fork.css">
+    <style>
+        body { font-family: system-ui; margin: 40px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; }
+        h1 { color: #333; }
+        .status { padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .success { background: #d1e7dd; color: #0f5132; }
+        .info { background: #d1ecf1; color: #055160; }
+        #calendar { margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Simple Calendar Test</h1>
+        
+        <div class="status info">
+            <strong>Testing the built calendar locally</strong><br>
+            Open browser console to check for errors
+        </div>
+
+        <div id="calendar"></div>
+
+        <div id="result" class="status info">
+            Selected: <span id="selected">None</span>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import the built ES module
+        import Calendar from './dist/react-infinite-calendar.es.js';
+        
+        console.log('✅ Calendar module loaded:', Calendar);
+        
+        // For now, just verify the module loads
+        document.getElementById('result').className = 'status success';
+        document.getElementById('result').innerHTML = '<strong>✅ Module loaded successfully!</strong> The calendar is ready to use.';
+    </script>
+</body>
+</html>

@@ -7,24 +7,19 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.js'],
-    deps: {
-      inline: ['vitest-canvas-mock'],
+    server: {
+      deps: {
+        inline: ['vitest-canvas-mock'],
+      },
     },
-    include: ['src/**/*.{test,spec}.{js,jsx}'],
+    include: ['src/**/*.{test,spec}.{js,jsx,ts,tsx}'],
     coverage: {
       reporter: ['text', 'json', 'html'],
     },
     mockReset: true,
     restoreMocks: true,
-    alias: {
-      '@testing-library/react-hooks': '@testing-library/react',
-    },
   },
   define: {
-    'window': 'globalThis',
-    'setTimeout': 'globalThis.setTimeout',
-    'clearTimeout': 'globalThis.clearTimeout',
-    'performance': 'globalThis.performance',
-    'console': 'globalThis.console',
+    global: 'globalThis',
   }
 });

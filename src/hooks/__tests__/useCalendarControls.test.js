@@ -1,4 +1,5 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react';
+import { vi } from 'vitest';
 import useCalendarControls from '../useCalendarControls';
 
 describe('useCalendarControls', () => {
@@ -7,7 +8,7 @@ describe('useCalendarControls', () => {
     max: new Date(2020, 11, 31),
     minDate: new Date(2020, 0, 1),
     maxDate: new Date(2020, 11, 31),
-    monthListRef: { current: { getDateOffset: jest.fn(), scrollTo: jest.fn(), scrollToDate: jest.fn() } }
+    monthListRef: { current: { getDateOffset: vi.fn(), scrollTo: vi.fn(), scrollToDate: vi.fn() } }
   };
 
   it('should initialize with correct values', () => {

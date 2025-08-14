@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import classNames from 'classnames';
 import parse from 'date-fns/parse';
@@ -51,34 +51,39 @@ export default function defaultSelectionRenderer(value, {
       className={styles.wrapper}
       aria-label={format(date, `${dateFormat} yyyy`)}
     >
-      {values.map(({ handleClick, item, value, active, title }) => (
-        <div
-          key={item}
-          className={classNames(styles.dateWrapper, styles[item], {
-            [styles.active]: active,
-          })}
-          title={title}
-        >
-          <TransitionGroup component={null}>
-            <CSSTransition
-              key={`${item}-${value}`}
-              classNames={animation}
-              timeout={250}
-              appear={shouldAnimate}
-              enter={shouldAnimate}
-              exit={shouldAnimate}
-            >
-              <span
-                className={styles.date}
-                aria-hidden={true}
-                onClick={handleClick}
+      {values.map(({ handleClick, item, value, active, title }) => {
+        const nodeRef = useRef(null);
+        return (
+          <div
+            key={item}
+            className={classNames(styles.dateWrapper, styles[item], {
+              [styles.active]: active,
+            })}
+            title={title}
+          >
+            <TransitionGroup component={null}>
+              <CSSTransition
+                key={`${item}-${value}`}
+                classNames={animation}
+                timeout={250}
+                appear={shouldAnimate}
+                enter={shouldAnimate}
+                exit={shouldAnimate}
+                nodeRef={nodeRef}
               >
-                {value}
-              </span>
-            </CSSTransition>
-          </TransitionGroup>
-        </div>
-      ))}
+                <span
+                  ref={nodeRef}
+                  className={styles.date}
+                  aria-hidden={true}
+                  onClick={handleClick}
+                >
+                  {value}
+                </span>
+              </CSSTransition>
+            </TransitionGroup>
+          </div>
+        );
+      })}
     </div>
   );
 }

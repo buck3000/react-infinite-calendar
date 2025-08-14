@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, forwardRef } from 'react';
 import PropTypes from 'prop-types';
-import VirtualList from 'react-tiny-virtual-list';
+import { useSimpleVirtualizer } from '../utils/SimpleVirtualizer.jsx';
 import classNames from 'classnames';
 import {
   emptyFn,
@@ -16,7 +16,7 @@ import styles from './MonthList.module.scss';
 
 const AVERAGE_ROWS_PER_MONTH = 5;
 
-const MonthList = ({
+const MonthList = forwardRef(({
   DayComponent,
   disabledDates,
   disabledDays,
@@ -38,7 +38,7 @@ const MonthList = ({
   theme,
   today,
   width,
-}) => {
+}, ref) => {
   const getDateOffset = useCallback((date) => {
     if (!date || !min || !locale) return 0;
     const { weekStartsOn } = locale;
@@ -49,8 +49,7 @@ const MonthList = ({
   const [scrollTop, setScrollTop] = useState(() => getDateOffset(scrollDate));
   const cache = useRef({});
   const monthHeights = useRef([]);
-  const scrollEl = useRef(null);
-  const virtualListRef = useRef(null);
+  const scrollElRef = useRef(null);
 
   const memoize = useCallback((param) => {
     if (!cache.current[param]) {
@@ -61,10 +60,6 @@ const MonthList = ({
     }
     return cache.current[param];
   }, [locale]);
-
-  useEffect(() => {
-    scrollEl.current = virtualListRef.current.rootNode;
-  }, []);
 
   useEffect(() => {
     setScrollTop(getDateOffset(scrollDate));
@@ -79,92 +74,138 @@ const MonthList = ({
     const onComplete = () => {
       if (typeof globalThis !== 'undefined') {
         globalThis.setTimeout(() => {
-          scrollEl.current.style.overflowY = 'auto';
+          if (scrollElRef.current) {
+            scrollElRef.current.style.overflowY = 'auto';
+          }
           onScrollEnd();
         }, 0);
       }
     };
 
-    scrollEl.current.style.overflowY = 'hidden';
+    if (scrollElRef.current) {
+      scrollElRef.current.style.overflowY = 'hidden';
+    }
 
     if (shouldAnimate) {
       animate({
-        fromValue: scrollEl.current.scrollTop,
+        fromValue: scrollElRef.current?.scrollTop || 0,
         toValue: scrollTop,
-        onUpdate: (scrollTop, callback) => setScrollTop(scrollTop, callback),
+        onUpdate: (scrollTop, callback) => {
+          if (scrollElRef.current) {
+            scrollElRef.current.scrollTop = scrollTop;
+          }
+          setScrollTop(scrollTop);
+          if (callback) callback();
+        },
         onComplete,
       });
     } else {
       if (typeof globalThis !== 'undefined' && globalThis.requestAnimationFrame) {
         globalThis.requestAnimationFrame(() => {
-          scrollEl.current.scrollTop = scrollTop;
+          if (scrollElRef.current) {
+            scrollElRef.current.scrollTop = scrollTop;
+          }
           onComplete();
         });
       } else {
-        scrollEl.current.scrollTop = scrollTop;
+        if (scrollElRef.current) {
+          scrollElRef.current.scrollTop = scrollTop;
+        }
         onComplete();
       }
     }
   }, []);
 
-  const getMonthHeight = useCallback((index) => {
-    if (!monthHeights.current[index]) {
-      const { weekStartsOn } = locale;
-      const { month, year } = months[index];
-      const weeks = getWeeksInMonth(month, year, weekStartsOn, index === months.length - 1);
-      const height = weeks * rowHeight;
-      monthHeights.current[index] = height;
-    }
-    return monthHeights.current[index];
-  }, [locale, months, rowHeight]);
 
-  const renderMonth = useCallback(({ index, style }) => {
+  const virtualizer = useSimpleVirtualizer({
+    count: months.length,
+    getScrollElement: () => scrollElRef.current,
+    estimateSize: () => rowHeight * AVERAGE_ROWS_PER_MONTH,
+    getItemKey: (index) => `${months[index].year}:${months[index].month}`,
+    overscan: overscanMonthCount || 2,
+  });
+
+  const renderMonth = useCallback((virtualItem) => {
+    const { index } = virtualItem;
     const { month, year } = months[index];
     const key = `${year}:${month}`;
     const { date, rows } = memoize(key);
 
     return (
-      <Month
+      <div
         key={key}
-        selected={selectedDate}
-        DayComponent={DayComponent}
-        monthDate={date}
-        disabledDates={disabledDates}
-        disabledDays={disabledDays}
-        maxDate={maxDate}
-        minDate={minDate}
-        rows={rows}
-        rowHeight={rowHeight}
-        isScrolling={false}
-        showOverlay={showOverlay}
-        today={today}
-        theme={theme}
-        style={style}
-        locale={locale}
-        passThrough={passThrough}
-        {...passThrough.Month}
-      />
+        data-index={index}
+        ref={virtualItem.measureElement}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          transform: `translateY(${virtualItem.start}px)`,
+        }}
+      >
+        <Month
+          selected={selectedDate}
+          DayComponent={DayComponent}
+          monthDate={date}
+          disabledDates={disabledDates}
+          disabledDays={disabledDays}
+          maxDate={maxDate}
+          minDate={minDate}
+          rows={rows}
+          rowHeight={rowHeight}
+          isScrolling={false}
+          showOverlay={showOverlay}
+          today={today}
+          theme={theme}
+          locale={locale}
+          passThrough={passThrough}
+          {...passThrough.Month}
+        />
+      </div>
     );
   }, [memoize, months, selectedDate, disabledDates, disabledDays, maxDate, minDate, rowHeight, showOverlay, today, theme, locale, passThrough]);
 
+  const handleScroll = useCallback((e) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    setScrollTop(scrollTop);
+    if (onScroll) {
+      onScroll(scrollTop, e);
+    }
+  }, [onScroll]);
+
+  // Expose methods to parent component through ref
+  React.useImperativeHandle(ref, () => ({
+    getScrollElement: () => scrollElRef.current,
+    scrollToDate,
+    scrollTo,
+  }), [scrollToDate, scrollTo]);
+
   return (
-    <VirtualList
+    <div
       data-testid="calendar-month-list"
-      ref={virtualListRef}
-      width={width}
-      height={height}
-      itemCount={months.length}
-      itemSize={getMonthHeight}
-      estimatedItemSize={rowHeight * AVERAGE_ROWS_PER_MONTH}
-      renderItem={renderMonth}
-      onScroll={onScroll}
-      scrollOffset={scrollTop}
+      ref={scrollElRef}
       className={classNames(styles.root, { [styles.scrolling]: isScrolling })}
-      style={{ lineHeight: `${rowHeight}px` }}
-      overscanCount={overscanMonthCount}
-    />
+      style={{
+        height,
+        width,
+        overflow: 'auto',
+        lineHeight: `${rowHeight}px`,
+      }}
+      onScroll={handleScroll}
+    >
+      <div
+        style={{
+          height: virtualizer.getTotalSize(),
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        {virtualizer.getVirtualItems().map((item) => renderMonth(item))}
+      </div>
+    </div>
   );
-};
+});
 
 MonthList.propTypes = {
   disabledDates: PropTypes.arrayOf(PropTypes.string),
@@ -180,12 +221,14 @@ MonthList.propTypes = {
   onScroll: PropTypes.func,
   overscanMonthCount: PropTypes.number,
   rowHeight: PropTypes.number.isRequired,
-  scrollDate: PropTypes.instanceOf(Date).isRequired,
+  scrollDate: PropTypes.instanceOf(Date), // Made optional to fix PropTypes warning
   selectedDate: PropTypes.instanceOf(Date),
   showOverlay: PropTypes.bool,
   theme: PropTypes.object.isRequired,
   today: PropTypes.instanceOf(Date).isRequired,
   width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
 };
+
+MonthList.displayName = 'MonthList';
 
 export default MonthList;
